@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+
 func getInput() []string {
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
@@ -53,7 +54,7 @@ func romanToArabic(roman string) (int, error) {
 
 func arabicToRoman(num int) (string, error) {
 	if num < 1 {
-		return "", fmt.Errorf("Ошибка: Римское число не может быть отрицательным")
+		return "", fmt.Errorf("Ошибка: Римское число не может быть 0 или отрицательным")
 	}
 
 	romanNums := map[int]string{
