@@ -8,7 +8,6 @@ import (
 	"strings"
 )
 
-
 func getInput() []string {
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
@@ -27,16 +26,16 @@ func isNum(val string) bool {
 	return err == nil
 }
 
-func isRoman(val string) bool {
-	romanNumerals := map[string]bool{
+func isRoman(val []string) bool {
+	return checkRoman(val[0]) && checkRoman(val[2])
+}
+
+func checkRoman(val string) bool {
+	romanNums := map[string]bool{
 		"I": true, "II": true, "III": true, "IV": true, "V": true,
 		"VI": true, "VII": true, "VIII": true, "IX": true, "X": true,
 	}
-	return romanNumerals[val]
-}
-
-func isRomanNum(val []string) bool {
-	return isRoman(val[0]) && isRoman(val[2])
+	return romanNums[val]
 }
 
 func romanToArabic(roman string) (int, error) {
@@ -49,24 +48,29 @@ func romanToArabic(roman string) (int, error) {
 		return val, nil
 	}
 
-	return 0, fmt.Errorf("Ошибка: Римское число должно быть от I до X")
+	return 0, fmt.Errorf("Ошибка: Введите римское число от I до X")
 }
 
 func arabicToRoman(num int) (string, error) {
+	if num < 1 {
+		return "", fmt.Errorf("Ошибка: Римское число не может быть отрицательным")
+	}
+
 	romanNums := map[int]string{
-		1: "I", 2: "II", 3: "III", 4: "IV", 5: "V",
-		6: "VI", 7: "VII", 8: "VIII", 9: "IX", 10: "X",
+		1000: "M", 900: "CM", 500: "D", 400: "CD", 100: "C",
+		90: "XC", 50: "L", 40: "XL", 10: "X", 9: "IX", 5: "V", 4: "IV", 1: "I",
 	}
 
-	if num < 1 || num > 10 {
-		return "", fmt.Errorf("Ошибка: Результат римского числа должен быть от 1 до 10")
+	var result strings.Builder
+
+	for value, numeral := range romanNums {
+		for num >= value {
+			num -= value
+			result.WriteString(numeral)
+		}
 	}
 
-	if numeral, ok := romanNums[num]; ok {
-		return numeral, nil
-	}
-
-	return "", fmt.Errorf("Ошибка: Результат римского числа должен быть от 1 до 10")
+	return result.String(), nil
 }
 
 func checkRangeNums(num1, num2 int) error {
@@ -76,20 +80,20 @@ func checkRangeNums(num1, num2 int) error {
 	return nil
 }
 
-func calculateArabAndRoman(expr []string) (interface{}, error) {
-	if err := checkCountArgs(expr); err != nil {
+func calculateArabAndRoman(exp []string) (interface{}, error) {
+	if err := checkCountArgs(exp); err != nil {
 		return nil, err
 	}
 
 	var num1, num2 int
 	var err1, err2 error
 
-	if isNum(expr[0]) && isNum(expr[2]) {
-		num1, err1 = strconv.Atoi(expr[0])
-		num2, err2 = strconv.Atoi(expr[2])
-	} else if isRomanNum(expr) {
-		num1, err1 = romanToArabic(expr[0])
-		num2, err2 = romanToArabic(expr[2])
+	if isNum(exp[0]) && isNum(exp[2]) {
+		num1, err1 = strconv.Atoi(exp[0])
+		num2, err2 = strconv.Atoi(exp[2])
+	} else if isRoman(exp) {
+		num1, err1 = romanToArabic(exp[0])
+		num2, err2 = romanToArabic(exp[2])
 	} else {
 		return nil, fmt.Errorf("Ошибка: Неверный формат чисел")
 	}
@@ -102,44 +106,44 @@ func calculateArabAndRoman(expr []string) (interface{}, error) {
 		return nil, err
 	}
 
-	operator := expr[1]
+	operator := exp[1]
 	switch operator {
 	case "+":
 		result := num1 + num2
-		if isRomanNum(expr) {
+		if isRoman(exp) {
 			romanResult, err := arabicToRoman(result)
 			if err != nil {
-				return nil, err
+				return "", err
 			}
 			return romanResult, nil
 		}
 		return result, nil
 	case "-":
 		result := num1 - num2
-		if isRomanNum(expr) {
+		if isRoman(exp) {
 			romanResult, err := arabicToRoman(result)
 			if err != nil {
-				return nil, err
+				return "", err
 			}
 			return romanResult, nil
 		}
 		return result, nil
 	case "*":
 		result := num1 * num2
-		if isRomanNum(expr) {
+		if isRoman(exp) {
 			romanResult, err := arabicToRoman(result)
 			if err != nil {
-				return nil, err
+				return "", err
 			}
 			return romanResult, nil
 		}
 		return result, nil
 	case "/":
 		result := num1 / num2
-		if isRomanNum(expr) {
+		if isRoman(exp) {
 			romanResult, err := arabicToRoman(result)
 			if err != nil {
-				return nil, err
+				return "", err
 			}
 			return romanResult, nil
 		}
@@ -148,7 +152,6 @@ func calculateArabAndRoman(expr []string) (interface{}, error) {
 		return nil, fmt.Errorf("Ошибка: Неверный математический оператор")
 	}
 }
-
 
 func main() {
 	fmt.Println("Введите выражение: ")
