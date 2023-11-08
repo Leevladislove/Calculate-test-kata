@@ -39,6 +39,7 @@ func checkRoman(val string) bool {
 	return romanNums[val]
 }
 
+// конверт взять из интернета
 func romanToArabic(roman string) (int, error) {
 	romanNums := map[string]int{
 		"I": 1, "II": 2, "III": 3, "IV": 4, "V": 5,
@@ -52,6 +53,7 @@ func romanToArabic(roman string) (int, error) {
 	return 0, fmt.Errorf("Ошибка: Введите римское число от I до X")
 }
 
+// конверт взять из интернета
 func arabicToRoman(num int) (string, error) {
 	if num < 1 {
 		return "", fmt.Errorf("Ошибка: Римское число не может быть 0 или отрицательным")
